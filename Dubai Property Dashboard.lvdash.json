@@ -277,6 +277,57 @@
             "width": 6,
             "height": 4
           }
+        },
+        {
+          "widget": {
+            "name": "5d8452dd",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "property_type_value_share",
+                  "fields": [
+                    {
+                      "name": "sum(total_value)",
+                      "expression": "SUM(`total_value`)"
+                    },
+                    {
+                      "name": "prop_sb_type_en",
+                      "expression": "`prop_sb_type_en`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "pie",
+              "encodings": {
+                "angle": {
+                  "fieldName": "sum(total_value)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "prop_sb_type_en",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 6,
+            "width": 6,
+            "height": 6
+          }
         }
       ],
       "pageType": "PAGE_TYPE_CANVAS",

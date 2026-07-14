@@ -1,0 +1,292 @@
+{
+  "datasets": [
+    {
+      "name": "monthly_transactions",
+      "displayName": "Monthly Transaction Trends",
+      "config": {
+        "version": "1.1",
+        "source": "SELECT \n  DATE_FORMAT(instance_date, 'yyyy-MM') AS year_month,\n  instance_date,\n  trans_value\nFROM workspace.default.silver_dubai_property WHERE instance_date IS NOT NULL \n  AND trans_value IS NOT NULL\n",
+        "dimensions": [
+          {
+            "name": "year_month",
+            "expr": "year_month"
+          },
+          {
+            "name": "instance_date",
+            "expr": "instance_date"
+          }
+        ],
+        "measures": [
+          {
+            "name": "total_transaction_value",
+            "expr": "SUM(trans_value)",
+            "displayName": "Total Transaction Value"
+          },
+          {
+            "name": "transaction_count",
+            "expr": "COUNT(*)",
+            "displayName": "Number of Transactions"
+          },
+          {
+            "name": "avg_transaction_value",
+            "expr": "AVG(trans_value)",
+            "displayName": "Average Transaction Value"
+          }
+        ]
+      }
+    },
+    {
+      "name": "top_areas",
+      "displayName": "Top Areas by Transaction Count",
+      "queryLines": [
+        "SELECT\n",
+        "  area_en,\n",
+        "  count_trans_value,\n",
+        "  avg_price_per_sqm\n",
+        "FROM\n",
+        "  gold_price_by_area\n",
+        "ORDER BY\n",
+        "  count_trans_value DESC\n",
+        "LIMIT 20"
+      ],
+      "catalog": "workspace",
+      "schema": "default"
+    },
+    {
+      "name": "price_by_property_type",
+      "displayName": "Price by Property Type",
+      "queryLines": [
+        "SELECT\n",
+        "  prop_sb_type_en,\n",
+        "  AVG(avg_price_per_sqm) as avg_price_per_sqm\n",
+        "FROM\n",
+        "  gold_price_by_type\n",
+        "WHERE\n",
+        "  prop_sb_type_en IS NOT NULL\n",
+        "GROUP BY\n",
+        "  prop_sb_type_en\n",
+        "ORDER BY\n",
+        "  avg_price_per_sqm DESC"
+      ],
+      "catalog": "workspace",
+      "schema": "default"
+    },
+    {
+      "name": "property_type_value_share",
+      "displayName": "Property Type Market Share by Value",
+      "queryLines": [
+        "SELECT\n",
+        "  prop_sb_type_en,\n",
+        "  SUM(trans_value) as total_value\n",
+        "FROM\n",
+        "  silver_dubai_property\n",
+        "WHERE\n",
+        "  prop_sb_type_en IS NOT NULL\n",
+        "  AND trans_value IS NOT NULL\n",
+        "GROUP BY\n",
+        "  prop_sb_type_en\n",
+        "ORDER BY\n",
+        "  total_value DESC"
+      ],
+      "catalog": "workspace",
+      "schema": "default"
+    }
+  ],
+  "pages": [
+    {
+      "name": "ea57b42a",
+      "displayName": "Dashboard",
+      "layout": [
+        {
+          "widget": {
+            "name": "11d6fa82",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "monthly_transactions",
+                  "fields": [
+                    {
+                      "name": "year_month",
+                      "expression": "`year_month`"
+                    },
+                    {
+                      "name": "measure(total_transaction_value)",
+                      "expression": "MEASURE(`total_transaction_value`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Monthly Transaction Value Trends",
+                "showTitle": true
+              },
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "year_month",
+                  "scale": {
+                    "type": "temporal"
+                  }
+                },
+                "y": {
+                  "fieldName": "measure(total_transaction_value)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 6,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "094b938e",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "top_areas",
+                  "fields": [
+                    {
+                      "name": "count_trans_value",
+                      "expression": "`count_trans_value`"
+                    },
+                    {
+                      "name": "area_en",
+                      "expression": "`area_en`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Top 20 Areas by Transaction Count",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "count_trans_value",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "area_en",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "ab38522b",
+            "multilineTextboxSpec": {
+              "lines": [
+                "# Dubai Property Price Dashboard"
+              ]
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 0,
+            "width": 6,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "f470de6a",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "price_by_property_type",
+                  "fields": [
+                    {
+                      "name": "avg_price_per_sqm",
+                      "expression": "`avg_price_per_sqm`"
+                    },
+                    {
+                      "name": "prop_sb_type_en",
+                      "expression": "`prop_sb_type_en`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Average Price per Sqm by Property Type",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "avg_price_per_sqm",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "prop_sb_type_en",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 2,
+            "width": 6,
+            "height": 4
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}
